@@ -1,0 +1,4 @@
+# Aqui ficam só as fotos. Arquivos PHP nunca podem ser executados/baixados desta pasta.
+<FilesMatch "\.(php|phtml|phar)$">
+    Require all denied
+</FilesMatch>

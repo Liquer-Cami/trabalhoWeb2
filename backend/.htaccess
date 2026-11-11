@@ -1,0 +1,7 @@
+# Não mostra a lista de arquivos das pastas
+Options -Indexes
+
+# Ninguém abre o config.php pelo navegador (tem senha do banco e chave do Gemini)
+<FilesMatch "^config(\.exemplo)?\.php$">
+    Require all denied
+</FilesMatch>

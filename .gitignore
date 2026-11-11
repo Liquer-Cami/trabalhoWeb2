@@ -1,0 +1,9 @@
+# Segredos e arquivos gerados
+backend/config.php
+backend/logs/*.log
+backend/uploads/*
+!backend/uploads/.htaccess
+!backend/uploads/.gitkeep
+node_modules
+dist
+*.local

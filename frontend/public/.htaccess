@@ -1,0 +1,9 @@
+# Para a hospedagem: o React cuida das rotas (/login, /estrategias/3...).
+# Qualquer endereço que não for um arquivo de verdade abre o index.html,
+# assim o F5 ou um link direto não dá erro 404.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . index.html [L]
+</IfModule>

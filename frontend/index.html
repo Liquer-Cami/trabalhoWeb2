@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/girassol.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="author" content="Camila Liquer Pinto" />
+    <meta
+      name="plagiarism"
+      content="Trabalho original desenvolvido por Camila Liquer Pinto para a plataforma Equilibra. Declaro que este projeto é de minha autoria e não contém plágio."
+    />
+    <meta
+      name="description"
+      content="Plataforma web acessível para gestão adaptativa de tarefas e apoio à autorregulação de pessoas com TEA e TDAH"
+    />
+    <title>Equilibra</title>
+    <!-- Aplica o tema salvo antes do React carregar, evitando "piscar" claro/escuro -->
+    <script>
+      try {
+        if (localStorage.getItem('equilibra-tema') === 'dark') {
+          document.documentElement.classList.add('dark')
+        }
+      } catch (e) {}
+    </script>
+  </head>
+  <body class="min-h-full flex flex-col">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
