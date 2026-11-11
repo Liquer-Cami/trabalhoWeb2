@@ -4,7 +4,6 @@ Apoio à rotina para pessoas neurodivergentes: check-in emocional, tarefas, estr
 
 - **Front-end:** React + TypeScript (SPA), pasta `frontend/`
 - **Back-end:** PHP puro, sem frameworks, + MySQL com PDO, pasta `backend/`
-- **Banco:** `database/schema.sql` (10 tabelas, já com dados de exemplo)
 
 ## Como rodar (XAMPP)
 
