@@ -4,6 +4,7 @@ backend/logs/*.log
 backend/uploads/*
 !backend/uploads/.htaccess
 !backend/uploads/.gitkeep
+database/
 node_modules
 dist
 *.local
