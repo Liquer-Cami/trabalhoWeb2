@@ -13,14 +13,6 @@ Apoio à rotina para pessoas neurodivergentes: check-in emocional, tarefas, estr
 4. Em `frontend/.env.local`: `VITE_API_URL=http://localhost/Equilibra%20Web%202/backend`
 5. `cd frontend && npm install && npm run dev` e abra http://localhost:5173
 
-## Hospedagem
-
-1. `cd frontend && npm run build` gera a pasta `frontend/dist`.
-2. Coloque o conteúdo de `dist` na raiz do site e a pasta `backend` ao lado. Assim front e back ficam no **mesmo domínio**, e o cookie do login funciona.
-3. Antes do build, ajuste `VITE_API_URL` para o endereço do backend (ex.: `https://meusite.com.br/backend`).
-4. No `config.php` da hospedagem: dados do banco e `URL_FRONTEND` com o endereço do site.
-5. O `.htaccess` que vai junto no `dist` faz as rotas do React funcionarem no F5 e em links diretos.
-
 ## Front e back separados
 
 - **`frontend/`** tem todas as telas (React). Ele só conversa com o backend pedindo e recebendo JSON.
