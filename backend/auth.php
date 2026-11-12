@@ -51,7 +51,6 @@ if ($acao === 'cadastro') {
         responder(400, ['status' => 'error', 'message' => 'A senha precisa de 8+ caracteres, com letra, número e símbolo.']);
     }
 
-    //Aqui vai verificar se esse email ja pertence a uma conta
     $consulta = $pdo->prepare('SELECT id FROM usuarios WHERE email = ?');
     $consulta->execute([$email]);
     if ($consulta->fetch()) {
@@ -75,7 +74,6 @@ if ($acao === 'cadastro') {
         move_uploaded_file($arquivo['tmp_name'], __DIR__ . '/' . $foto);
     }
 
-    // salva a senha em hash
     $insere = $pdo->prepare('INSERT INTO usuarios (nome, email, senha, foto) VALUES (?, ?, ?, ?)');
     $insere->execute([$nome, $email, password_hash($senha, PASSWORD_DEFAULT), $foto]);
     $id = $pdo->lastInsertId();

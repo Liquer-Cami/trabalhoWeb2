@@ -11,5 +11,5 @@ export interface Recomendacao {
   motivo: string; 
 }
 
-// Pede ao backend as tarefas recomendadas para o último check-in.
+// Pede ao backend as tarefas de hoje recomendadas para o check-in de hoje.
 export const gerarRecomendacoes = () => chamarApi<Recomendacao[]>('POST', '/sugestoes.php');

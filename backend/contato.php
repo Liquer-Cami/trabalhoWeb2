@@ -22,7 +22,6 @@ if (strlen($mensagem) < 10) {
     responder(400, ['status' => 'error', 'message' => 'A mensagem deve ter pelo menos 10 caracteres.']);
 }
 
-// guarda no banco
 $insere = $pdo->prepare('INSERT INTO mensagens_contato (nome, email, assunto, mensagem) VALUES (?, ?, ?, ?)');
 $insere->execute([$nome, $email, $assunto, $mensagem]);
 

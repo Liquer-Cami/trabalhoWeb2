@@ -65,7 +65,6 @@ if ($metodo === 'POST') {
         $dados['data'] ?? date('Y-m-d'),
     ]);
 
-    // Devolve a tarefa criada 
     $busca = $pdo->prepare('SELECT * FROM tarefas WHERE id = ?');
     $busca->execute([$pdo->lastInsertId()]);
     responder(201, ['status' => 'success', 'message' => 'Tarefa criada com sucesso!', 'data' => montarTarefa($pdo, $busca->fetch())]);

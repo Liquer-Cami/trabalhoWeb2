@@ -35,12 +35,10 @@ export default function SideBar() {
 
     return (
         <aside className="bg-[var(--creme-escuro)] h-screen sticky top-0 flex flex-col shadow-md">
-            {/* Topo: Logo */}
             <div className="flex items-center px-8 pt-8 pb-4">
                 <h1 className="text-[var(--verde)] text-3xl font-bold">Equilibra</h1>
             </div>
 
-            {/* Perfil: Nome do Usuário + Foto */}
             <div className="px-5 pb-6">
                 <div className="flex items-center justify-between gap-3 p-3 bg-[var(--creme-claro)] rounded-2xl shadow-xs">
                     <span className="text-lg font-bold truncate" title={usuario?.nome ?? "Usuário"}>
@@ -61,7 +59,6 @@ export default function SideBar() {
                 </div>
             </div>
 
-            {/* Navegação */}
             <nav className="flex flex-1 flex-col px-5 gap-2">
                 {itensMenu.map(({ to, texto, Icone }) => (
                     <Link
@@ -75,7 +72,6 @@ export default function SideBar() {
                 ))}
             </nav>
 
-            {/* Botão Sair */}
             <div className="px-5 pb-6">
                 <Link
                     to="/login"

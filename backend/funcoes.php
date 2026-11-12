@@ -85,8 +85,8 @@ function enviarEmail($para, $assunto, $mensagem)
     $mail = new PHPMailer(true);
 
     try {
-        $mail->isSMTP();          // Define o uso de SMTP no envio
-        $mail->SMTPAuth = true;   // Habilita a autenticação SMTP
+        $mail->isSMTP();
+        $mail->SMTPAuth = true;
 
         $mail->Username = EMAIL_USUARIO; 
         $mail->Password = EMAIL_SENHA;    
@@ -100,11 +100,9 @@ function enviarEmail($para, $assunto, $mensagem)
 
         $mail->CharSet = 'UTF-8'; 
 
-        // Remetente e destinatário
         $mail->setFrom(EMAIL_USUARIO, 'Equilibra');
         $mail->addAddress($para);
 
-        // Conteúdo da mensagem
         $mail->isHTML(true);
         $mail->Subject = $assunto;
         $mail->Body = $mensagem;
