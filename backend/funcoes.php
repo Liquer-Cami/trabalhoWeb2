@@ -2,7 +2,6 @@
 
 require_once 'conexao.php';
 
-// PHPMailer: biblioteca para enviar e-mail pelo Gmail (tutorial do professor)
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -14,7 +13,6 @@ ini_set('display_errors', '0');
 
 header('Content-Type: application/json; charset=utf-8');
 
-// CORS: o React roda em outro endereço (porta 5173), então liberamos ele aqui
 header('Access-Control-Allow-Origin: ' . URL_FRONTEND);
 header('Access-Control-Allow-Credentials: true'); // deixa o React mandar o cookie da sessão
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
@@ -83,18 +81,16 @@ function gravarLog($evento, $usuarioId = '-')
     file_put_contents(__DIR__ . '/logs/auth.log', $linha . PHP_EOL, FILE_APPEND);
 }
 
-// Envia e-mail pelo Gmail com o PHPMailer (igual ao tutorial do professor)
 function enviarEmail($para, $assunto, $mensagem)
 {
     $mail = new PHPMailer(true);
 
     try {
-        // Configurações do servidor
         $mail->isSMTP();          // Define o uso de SMTP no envio
         $mail->SMTPAuth = true;   // Habilita a autenticação SMTP
 
-        $mail->Username = EMAIL_USUARIO;  // conta do Gmail
-        $mail->Password = EMAIL_SENHA;    // senha de app do Google (não é a senha normal)
+        $mail->Username = EMAIL_USUARIO; 
+        $mail->Password = EMAIL_SENHA;    
 
         // Criptografia do envio
         $mail->SMTPSecure = 'tls';
@@ -122,6 +118,4 @@ function enviarEmail($para, $assunto, $mensagem)
     }
 }
 
-// Log de TODA ação: cada vez que o React chama um arquivo do backend,
-// grava uma linha com o método e o arquivo (ex.: "POST tarefas.php", "GET auth.php?acao=me").
 gravarLog($_SERVER['REQUEST_METHOD'] . ' ' . basename($_SERVER['REQUEST_URI']), $_SESSION['usuario_id'] ?? '-');
