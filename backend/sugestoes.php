@@ -31,7 +31,7 @@ if (count($tarefas) === 0) {
 $prompt = "Você ajuda pessoas neurodivergentes (TEA e TDAH) a organizar a rotina.\n"
     . "Check-in de hoje: humor = {$checkin['humor']}, fatores de estresse = {$fatores}, observação = {$checkin['observacao']}\n"
     . "Tarefas pendentes (JSON): " . json_encode($tarefas, JSON_UNESCAPED_UNICODE) . "\n"
-    . "Escolha até 5 dessas tarefas, na ordem em que a pessoa deve fazer.\n"
+    . "Escolha até 5 dessas tarefas, na ordem em que a pessoa deve fazer, apenas as tarefas do dia selecionado.\n"
     . "Se o humor for mal ou muito-mal, prefira prioridade Alta com dificuldade Fácil e evite as Difíceis.\n"
     . "Se for bem ou muito-bem, priorize as de prioridade Alta, mesmo as difíceis.\n"
     . "Não crie tarefas novas. Responda só com JSON neste formato: [{\"id\": 1, \"motivo\": \"frase curta e acolhedora\"}]";

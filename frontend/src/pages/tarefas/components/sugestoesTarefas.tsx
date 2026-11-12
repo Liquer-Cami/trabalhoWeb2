@@ -32,7 +32,7 @@ export default function SugestoesTarefas() {
       <div>
         <h2 className="text-2xl font-bold">Tarefas recomendadas para agora</h2>
         <p className="text-xl text-[var(--verde)]">
-          A IA escolhe, entre as tarefas que você já cadastrou, as que combinam com a sua emoção.
+          A IA escolhe, entre as tarefas que você já cadastrou, as que combinam com a sua emoção. Funciona somente para o dia atual, já que será analisado pelo check-in diário
         </p>
       </div>
 

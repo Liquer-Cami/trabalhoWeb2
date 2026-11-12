@@ -4,7 +4,6 @@ require_once 'funcoes.php';
 
 $id = (int) ($_GET['categoria'] ?? 0); 
 
-
 $busca = $pdo->prepare('SELECT * FROM categorias WHERE id = ?');
 $busca->execute([$id]);
 $categoria = $busca->fetch();

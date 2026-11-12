@@ -19,7 +19,7 @@ Apoio à rotina para pessoas neurodivergentes: check-in emocional, tarefas, estr
 1. `cd frontend && npm run build` gera a pasta `frontend/dist`.
 2. Coloque o conteúdo de `dist` na raiz do site e a pasta `backend` ao lado. Assim front e back ficam no **mesmo domínio**, e o cookie do login funciona.
 3. Antes do build, ajuste `VITE_API_URL` para o endereço do backend (ex.: `https://meusite.com.br/backend`).
-4. No `config.php` da hospedagem: dados do banco, `URL_FRONTEND` com o endereço do site e `MODO_DEV` como `false`.
+4. No `config.php` da hospedagem: dados do banco e `URL_FRONTEND` com o endereço do site.
 5. O `.htaccess` que vai junto no `dist` faz as rotas do React funcionarem no F5 e em links diretos.
 
 ## Front e back separados
@@ -39,12 +39,12 @@ Cada arquivo é lido de cima para baixo: um `if` vê o método (GET, POST, PUT..
 |---|---|
 | `config.php` | Senha do banco e chave do Gemini (não vai para o GitHub) |
 | `conexao.php` | Conecta no MySQL (PDO) |
-| `funcoes.php` | Começo da API: CORS, sessão, `responder()`, `exigirLogin()`, log e e-mail |
+| `funcoes.php` | Começo da API: CORS, sessão, `responder()`, `exigirLogin()`, log e e-mail (PHPMailer + Gmail) |
 | `auth.php` | `?acao=` login, cadastro (com foto em `uploads/`), me, logout, esqueci_senha, redefinir_senha |
 | `tarefas.php` | Tarefas: GET lista, POST cria, PUT edita, PATCH conclui, DELETE apaga |
 | `checkin.php` | Check-in emocional: GET lista, POST salva |
 | `sugestoes.php` | Gemini recomenda as tarefas já cadastradas conforme o humor |
-| `contato.php` | Fale Conosco (salva no banco e envia com `mail()`) |
+| `contato.php` | Fale Conosco (salva no banco e envia o e-mail) |
 | `categorias.php`, `estrategias.php` | As duas listagens públicas (JSON) |
 | `detalhe.php` | Detalhe de 1 estratégia ou categoria (um PHP para os dois) |
 

@@ -1,12 +1,17 @@
 <?php
-// Conecta no banco, libera o React a chamar a API, inicia a sessão
-// e guarda as funções que vários arquivos usam.
 
 require_once 'conexao.php';
 
+// PHPMailer: biblioteca para enviar e-mail pelo Gmail (tutorial do professor)
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
 ini_set('display_errors', '0');
 
-// A resposta é sempre JSON
 header('Content-Type: application/json; charset=utf-8');
 
 // CORS: o React roda em outro endereço (porta 5173), então liberamos ele aqui
@@ -15,7 +20,6 @@ header('Access-Control-Allow-Credentials: true'); // deixa o React mandar o cook
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Antes de alguns pedidos o navegador manda um OPTIONS perguntando "posso?". Só respondemos que sim.
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
@@ -70,7 +74,6 @@ function senhaForte($senha)
         && preg_match('/[^a-zA-Z0-9]/', $senha);
 }
 
-// Log: escreve uma linha em logs/auth.log (data, evento, usuário, IP e navegador).
 function gravarLog($evento, $usuarioId = '-')
 {
     $linha = date('c') . ' | ' . $evento
@@ -80,20 +83,45 @@ function gravarLog($evento, $usuarioId = '-')
     file_put_contents(__DIR__ . '/logs/auth.log', $linha . PHP_EOL, FILE_APPEND);
 }
 
-// envia e-mail com a função mail() do PHP
+// Envia e-mail pelo Gmail com o PHPMailer (igual ao tutorial do professor)
 function enviarEmail($para, $assunto, $mensagem)
 {
-    $cabecalhos = "MIME-Version: 1.0\r\n";
-    $cabecalhos .= "Content-Type: text/html; charset=UTF-8\r\n";
-    $cabecalhos .= 'From: Equilibra <' . EMAIL_REMETENTE . ">\r\n";
+    $mail = new PHPMailer(true);
 
-    // O @ esconde o aviso quando o mail() falha (no XAMPP ele normalmente não envia)
-    $enviou = @mail($para, $assunto, $mensagem, $cabecalhos);
+    try {
+        // Configurações do servidor
+        $mail->isSMTP();          // Define o uso de SMTP no envio
+        $mail->SMTPAuth = true;   // Habilita a autenticação SMTP
 
-    // No XAMPP o e-mail não chega, então em modo de teste guardamos ele no log
-    if (MODO_DEV) {
-        $linha = date('c') . ' | para=' . $para . ' | ' . $assunto . ' | ' . strip_tags($mensagem, '<a>');
-        file_put_contents(__DIR__ . '/logs/emails.log', $linha . PHP_EOL, FILE_APPEND);
+        $mail->Username = EMAIL_USUARIO;  // conta do Gmail
+        $mail->Password = EMAIL_SENHA;    // senha de app do Google (não é a senha normal)
+
+        // Criptografia do envio
+        $mail->SMTPSecure = 'tls';
+
+        // Informações especificadas pelo Google
+        $mail->Host = 'smtp.gmail.com';
+        $mail->Port = 587;
+
+        $mail->CharSet = 'UTF-8'; // para os acentos aparecerem certo
+
+        // Remetente e destinatário
+        $mail->setFrom(EMAIL_USUARIO, 'Equilibra');
+        $mail->addAddress($para);
+
+        // Conteúdo da mensagem
+        $mail->isHTML(true);
+        $mail->Subject = $assunto;
+        $mail->Body = $mensagem;
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        gravarLog('EMAIL_FALHOU: ' . $mail->ErrorInfo);
+        return false;
     }
-    return $enviou;
 }
+
+// Log de TODA ação: cada vez que o React chama um arquivo do backend,
+// grava uma linha com o método e o arquivo (ex.: "POST tarefas.php", "GET auth.php?acao=me").
+gravarLog($_SERVER['REQUEST_METHOD'] . ' ' . basename($_SERVER['REQUEST_URI']), $_SESSION['usuario_id'] ?? '-');

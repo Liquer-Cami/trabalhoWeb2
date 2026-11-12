@@ -23,7 +23,7 @@ export default function EmocaoEmojis({ selected, onSelect }: EmocaoEmojisProps) 
         <button
           key={arquivo}
           type="button"
-          className={`p-5 text-lg rounded-4xl border-2 hover:scale-115 hover:bg-[var(--verde-claro)] focus:scale-115 focus:outline-none focus:ring-brand focus:border-3 focus:border-brand ${arquivo === selected ? 'bg-[var(--verde-claro)] text-[var(--creme-claro)]' : 'bg-[var(--creme-claro)]'}`}
+          className={`p-5 text-lg rounded-4xl border-2 hover:scale-115 hover:bg-[var(--verde-claro)] focus:scale-115 focus:outline-none focus:ring-brand focus:border-3 focus:border-brand ${arquivo === selected ? 'bg-[var(--verde-claro)] text-[var(--verde)]' : 'bg-[var(--creme-claro)]'}`}
           onClick={() => onSelect(arquivo)}
         >
           <img src={`/${arquivo}.svg`} alt={arquivo} width={100} height={30} />
