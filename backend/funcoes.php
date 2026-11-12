@@ -118,4 +118,5 @@ function enviarEmail($para, $assunto, $mensagem)
     }
 }
 
+
 gravarLog($_SERVER['REQUEST_METHOD'] . ' ' . basename($_SERVER['REQUEST_URI']), $_SESSION['usuario_id'] ?? '-');
