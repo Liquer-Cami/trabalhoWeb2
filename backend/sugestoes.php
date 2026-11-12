@@ -3,35 +3,57 @@
 require_once 'funcoes.php';
 
 $usuarioId = exigirLogin();
+$hoje = date('Y-m-d');
 
-//Último check-in
-$consulta = $pdo->prepare('SELECT * FROM checkins WHERE usuario_id = ? ORDER BY criado_em DESC LIMIT 1');
-$consulta->execute([$usuarioId]);
+$consulta = $pdo->prepare('SELECT * FROM checkins WHERE usuario_id = ? AND DATE(criado_em) = ? ORDER BY criado_em DESC LIMIT 1');
+$consulta->execute([$usuarioId, $hoje]);
 $checkin = $consulta->fetch();
 
 if (!$checkin) {
-    responder(400, ['status' => 'error', 'message' => 'Faça um check-in antes de pedir recomendações.']);
+    responder(400, ['status' => 'error', 'message' => 'Faça o check-in de hoje antes de pedir recomendações.']);
 }
 
-// nomes dos fatores de estresse desse check-in, separados por vírgula
 $busca = $pdo->prepare('SELECT f.nome FROM checkin_fatores cf JOIN fatores_estresse f ON f.id = cf.fator_id WHERE cf.checkin_id = ?');
 $busca->execute([$checkin['id']]);
 $fatores = implode(', ', $busca->fetchAll(PDO::FETCH_COLUMN));
 
-//tarefas pendentes
-$consulta = $pdo->prepare('SELECT id, titulo, prioridade, dificuldade, tempo_estimado, data
-                           FROM tarefas WHERE usuario_id = ? AND concluida = 0 LIMIT 40');
-$consulta->execute([$usuarioId]);
-$tarefas = $consulta->fetchAll();
+// Tarefas pendentes (as que se repetem e já foram feitas hoje ficam de fora)
+$consulta = $pdo->prepare('SELECT id, titulo, prioridade, dificuldade, tempo_estimado, data, recorrencia
+                           FROM tarefas
+                           WHERE usuario_id = ? AND concluida = 0
+                           AND id NOT IN (SELECT tarefa_id FROM tarefa_ocorrencias WHERE data = ?)');
+$consulta->execute([$usuarioId, $hoje]);
+
+// Fica só com as tarefas de HOJE 
+$tarefas = [];
+foreach ($consulta->fetchAll() as $t) {
+    $dias = (int) ((strtotime($hoje) - strtotime($t['data'])) / 86400); 
+
+    if ($t['recorrencia'] === '') {
+        $deHoje = $t['data'] === $hoje;          
+    } elseif ($dias < 0 || $dias >= 30) {
+        $deHoje = false;                           
+    } elseif ($t['recorrencia'] === 'Diária') {
+        $deHoje = true;
+    } elseif ($t['recorrencia'] === 'Semanal') {
+        $deHoje = $dias % 7 === 0;              
+    } else {
+        $deHoje = substr($t['data'], 8, 2) === date('d'); 
+    }
+
+    if ($deHoje) {
+        $tarefas[] = $t;
+    }
+}
 
 if (count($tarefas) === 0) {
-    responder(200, ['status' => 'success', 'message' => 'Você não tem tarefas pendentes para recomendar.', 'data' => []]);
+    responder(200, ['status' => 'success', 'message' => 'Você não tem tarefas pendentes para hoje.', 'data' => []]);
 }
 
 $prompt = "Você ajuda pessoas neurodivergentes (TEA e TDAH) a organizar a rotina.\n"
     . "Check-in de hoje: humor = {$checkin['humor']}, fatores de estresse = {$fatores}, observação = {$checkin['observacao']}\n"
-    . "Tarefas pendentes (JSON): " . json_encode($tarefas, JSON_UNESCAPED_UNICODE) . "\n"
-    . "Escolha até 5 dessas tarefas, na ordem em que a pessoa deve fazer, apenas as tarefas do dia selecionado.\n"
+    . "Tarefas de hoje (JSON): " . json_encode($tarefas, JSON_UNESCAPED_UNICODE) . "\n"
+    . "Escolha até 5 dessas tarefas, na ordem em que a pessoa deve fazer.\n"
     . "Se o humor for mal ou muito-mal, prefira prioridade Alta com dificuldade Fácil e evite as Difíceis.\n"
     . "Se for bem ou muito-bem, priorize as de prioridade Alta, mesmo as difíceis.\n"
     . "Não crie tarefas novas. Responda só com JSON neste formato: [{\"id\": 1, \"motivo\": \"frase curta e acolhedora\"}]";
@@ -43,8 +65,8 @@ $corpo = [
 
 $curl = curl_init('https://generativelanguage.googleapis.com/v1beta/models/' . GEMINI_MODELO . ':generateContent');
 curl_setopt($curl, CURLOPT_POST, true);
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);  // devolve a resposta em vez de imprimir
-curl_setopt($curl, CURLOPT_TIMEOUT, 30);           
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);  
+curl_setopt($curl, CURLOPT_TIMEOUT, 30);
 curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'x-goog-api-key: ' . GEMINI_CHAVE]);
 curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($corpo));
 $resposta = curl_exec($curl);
@@ -52,7 +74,7 @@ $codigo = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 curl_close($curl);
 
 if ($codigo !== 200) {
-    file_put_contents(__DIR__ . '/logs/ia.log', date('c') . ' | HTTP ' . $codigo . ' | ' . substr($resposta, 0, 300) . PHP_EOL, FILE_APPEND);
+    gravarLog('IA_FALHOU HTTP ' . $codigo, $usuarioId);
     responder(502, ['status' => 'error', 'message' => 'Não foi possível gerar as recomendações agora. Tente de novo.']);
 }
 
@@ -64,25 +86,16 @@ if (!is_array($escolhas)) {
     responder(502, ['status' => 'error', 'message' => 'A IA respondeu em um formato inesperado. Tente de novo.']);
 }
 
-// confere a resposta: só vale id que está na lista de tarefas do usuário
-$porId = [];
-foreach ($tarefas as $t) {
-    $porId[$t['id']] = $t;
-}
-
 $sugestoes = [];
 foreach ($escolhas as $item) {
-    $id = $item['id'] ?? 0;
-    if (!isset($porId[$id]) || count($sugestoes) === 5) {
-        continue;
-    }
-    $tarefa = $porId[$id];          // os dados vêm do banco, não da IA
-    $tarefa['motivo'] = $item['motivo'] ?? '';
-    $sugestoes[] = $tarefa;
-    unset($porId[$id]);             // não repete a mesma tarefa
+    foreach ($tarefas as $t) {
+        if ($t['id'] == $item['id']) {
+            $t['motivo'] = $item['motivo'] ?? '';
+            $sugestoes[] = $t;
 
-    // guarda que esta tarefa foi recomendada neste check-in
-    $pdo->prepare('INSERT IGNORE INTO tarefa_checkins (tarefa_id, checkin_id) VALUES (?, ?)')->execute([$id, $checkin['id']]);
+            $pdo->prepare('INSERT IGNORE INTO tarefa_checkins (tarefa_id, checkin_id) VALUES (?, ?)')->execute([$t['id'], $checkin['id']]);
+        }
+    }
 }
 
 responder(200, ['status' => 'success', 'data' => $sugestoes]);

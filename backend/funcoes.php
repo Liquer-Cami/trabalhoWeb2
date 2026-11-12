@@ -14,7 +14,7 @@ ini_set('display_errors', '0');
 header('Content-Type: application/json; charset=utf-8');
 
 header('Access-Control-Allow-Origin: ' . URL_FRONTEND);
-header('Access-Control-Allow-Credentials: true'); // deixa o React mandar o cookie da sessão
+header('Access-Control-Allow-Credentials: true'); 
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
 
@@ -63,7 +63,6 @@ function exigirLogin()
     return $_SESSION['usuario_id'];
 }
 
-// Senha forte: 8 ou mais caracteres, com letra, número e símbolo
 function senhaForte($senha)
 {
     return strlen($senha) >= 8
@@ -99,7 +98,7 @@ function enviarEmail($para, $assunto, $mensagem)
         $mail->Host = 'smtp.gmail.com';
         $mail->Port = 587;
 
-        $mail->CharSet = 'UTF-8'; // para os acentos aparecerem certo
+        $mail->CharSet = 'UTF-8'; 
 
         // Remetente e destinatário
         $mail->setFrom(EMAIL_USUARIO, 'Equilibra');
